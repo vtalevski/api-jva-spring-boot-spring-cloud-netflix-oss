@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.talevski.viktor</groupId>
+    <artifactId>spring_cloud_netflix_eureka_server_module</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Spring Cloud Netflix Eureka Server Module</name>
+    <description>Spring Cloud Netflix Eureka Server that works as a registry server for service discovery</description>
+
+    <parent>
+        <groupId>com.talevski.viktor</groupId>
+        <artifactId>api-jva-spring-boot-spring-cloud-netflix-oss</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <!-- Spring Cloud Netflix Eureka Server. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+        <!-- Spring Cloud Configuration. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.talevski.viktor.SpringCloudNetflixEurekaServerApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <finalName>api-jva-spring-boot-spring-cloud-netflix-eureka-server-module</finalName>
+    </build>
+</project>

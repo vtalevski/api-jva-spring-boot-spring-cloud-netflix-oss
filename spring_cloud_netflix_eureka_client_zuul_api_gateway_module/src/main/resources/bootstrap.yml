@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server
+      fail-fast: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8090
+  servlet:
+    context-path: /${spring.application.name}
+
+logging:
+  level:
+    root: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka

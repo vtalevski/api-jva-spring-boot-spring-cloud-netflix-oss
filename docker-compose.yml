@@ -1,0 +1,218 @@
+version: '3'
+services:
+  api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:
+    build: ./spring_cloud_netflix_eureka_server_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-server-module_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-server-module_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.2
+    ports:
+      - 8761:8761
+    environment:
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  rabbitmq_container:
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module
+    image: rabbitmq:management
+    container_name: rabbitmq_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.3
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:
+    depends_on:
+      - rabbitmq_container
+    build: ./spring_cloud_netflix_eureka_client_configuration_server_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.4
+    ports:
+      - 8888:8888
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+      - rabbitmq_container:rabbitmq_link
+    environment:
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-localtunnel_container:
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+    build: ./spring_cloud_netflix_eureka_client_configuration_server_module/local_tunnel
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-localtunnel_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-localtunnel_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.5
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-module:
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+    build: ./spring_cloud_netflix_eureka_client_zuul_api_gateway_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-module_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-module_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.6
+    ports:
+      - 8090:8090
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+      - rabbitmq_container:rabbitmq_link
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+    environment:
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-localtunnel_container:
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-module
+    build: ./spring_cloud_netflix_eureka_client_zuul_api_gateway_module/local_tunnel
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-localtunnel_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-localtunnel_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.7
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-module:spring_cloud_netflix_eureka_client_zuul_api_gateway_link
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_one:
+    labels:
+      description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_one
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+    build:
+      labels:
+        description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_one
+      context: ./spring_cloud_netflix_eureka_client_called_one_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_one_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_one_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.8
+    ports:
+      - 9010:9010
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+      - rabbitmq_container:rabbitmq_link
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+    environment:
+      PORT_NUMBER: 9010
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_two:
+    labels:
+      description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_two
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+    build:
+      labels:
+        description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_two
+      context: ./spring_cloud_netflix_eureka_client_called_one_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_two_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_two_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.9
+    ports:
+      - 9011:9011
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+      - rabbitmq_container:rabbitmq_link
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+    environment:
+      PORT_NUMBER: 9011
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_one:
+    labels:
+      description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_one
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+    build:
+      labels:
+        description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_one
+      context: ./spring_cloud_netflix_eureka_client_called_two_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_one_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_one_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.10
+    ports:
+      - 9020:9020
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+      - rabbitmq_container:rabbitmq_link
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+    environment:
+      PORT_NUMBER: 9020
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_two:
+    labels:
+      description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_two
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+    build:
+      labels:
+        description: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_two
+      context: ./spring_cloud_netflix_eureka_client_called_two_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_two_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module-two_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.11
+    ports:
+      - 9021:9021
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+      - rabbitmq_container:rabbitmq_link
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+    environment:
+      PORT_NUMBER: 9021
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+  api-jva-spring-boot-spring-cloud-netflix-eureka-client-caller-module:
+    depends_on:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-zuul-api-gateway-module
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_one
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-one-module_two
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_one
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-called-two-module_two
+    build: ./spring_cloud_netflix_eureka_client_caller_module
+    image: api-jva-spring-boot-spring-cloud-netflix-eureka-client-caller-module_image
+    container_name: api-jva-spring-boot-spring-cloud-netflix-eureka-client-caller-module_container
+    networks:
+      api-jva-spring-boot-spring-cloud-netflix-oss_network:
+        ipv4_address: 192.168.16.12
+    ports:
+      - 8080:8080
+    links:
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-client-configuration-server-module:spring_cloud_netflix_eureka_client_configuration_server_link
+      - rabbitmq_container:rabbitmq_link
+      - api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:spring_cloud_netflix_eureka_server_link
+    environment:
+      spring.rabbitmq.host: rabbitmq_container
+      eureka.client.serviceUrl.defaultZone: http://api-jva-spring-boot-spring-cloud-netflix-eureka-server-module:8761/api-jva-spring-boot-spring-cloud-netflix-eureka-server/eureka
+
+networks:
+  api-jva-spring-boot-spring-cloud-netflix-oss_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.16.0/24

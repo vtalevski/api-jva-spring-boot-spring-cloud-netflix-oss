@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.talevski.viktor</groupId>
+    <artifactId>api-jva-spring-boot-spring-cloud-netflix-oss</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Spring Boot Spring Cloud Netflix OSS</name>
+    <description>Parent module for the Spring Cloud Netflix Eureka Server Module, the Spring Cloud Netflix Eureka Client
+        Caller Module, the Spring Cloud Netflix Eureka Client Called One Module, the Spring Cloud Netflix Eureka Client
+        Called Two Module and the Spring Cloud Netflix Eureka Client Configuration Server Module
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>14</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <spring.cloud.version>Hoxton.RELEASE</spring.cloud.version>
+    </properties>
+
+    <modules>
+        <module>spring_cloud_netflix_eureka_client_called_one_module</module>
+        <module>spring_cloud_netflix_eureka_client_called_two_module</module>
+        <module>spring_cloud_netflix_eureka_client_caller_module</module>
+        <module>spring_cloud_netflix_eureka_client_configuration_server_module</module>
+        <module>spring_cloud_netflix_eureka_client_zuul_api_gateway_module</module>
+        <module>spring_cloud_netflix_eureka_server_module</module>
+    </modules>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.5.RELEASE</version>
+    </parent>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Common dependencies. -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud Configuration Clients dependencies. -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.16</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+</project>
